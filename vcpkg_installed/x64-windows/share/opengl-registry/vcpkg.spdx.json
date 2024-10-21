@@ -1,0 +1,110 @@
+{
+  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.2.1/schemas/spdx-schema.json",
+  "spdxVersion": "SPDX-2.2",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "documentNamespace": "https://spdx.org/spdxdocs/opengl-registry-x64-windows-2022-09-29#1-73484820-2a9d-4b73-bafd-cefa13f8a849",
+  "name": "opengl-registry:x64-windows@2022-09-29#1 0977a8dcaf2090425f2d1b41ddd3baab53b97cf7932e291106420c074ac4df09",
+  "creationInfo": {
+    "creators": [
+      "Tool: vcpkg-ac02a9f660977426b8ec6392919fbb1d51b10998"
+    ],
+    "created": "2024-07-03T12:32:48Z"
+  },
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "GENERATES",
+      "relatedSpdxElement": "SPDXRef-binary"
+    },
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-0"
+    },
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-1"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "GENERATED_FROM",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-0",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-1",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
+    }
+  ],
+  "packages": [
+    {
+      "name": "opengl-registry",
+      "SPDXID": "SPDXRef-port",
+      "versionInfo": "2022-09-29#1",
+      "downloadLocation": "git+https://github.com/microsoft/vcpkg@367e1502c966f1df0656bdea115989650d01a781",
+      "homepage": "https://github.com/KhronosGroup/OpenGL-Registry",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "description": "the API and Extension registries for the OpenGL family APIs",
+      "comment": "This is the port (recipe) consumed by vcpkg."
+    },
+    {
+      "name": "opengl-registry:x64-windows",
+      "SPDXID": "SPDXRef-binary",
+      "versionInfo": "0977a8dcaf2090425f2d1b41ddd3baab53b97cf7932e291106420c074ac4df09",
+      "downloadLocation": "NONE",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "comment": "This is a binary package built by vcpkg."
+    },
+    {
+      "SPDXID": "SPDXRef-resource-1",
+      "name": "KhronosGroup/OpenGL-Registry",
+      "downloadLocation": "git+https://github.com/KhronosGroup/OpenGL-Registry@5bae8738b23d06968e7c3a41308568120943ae77",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA512",
+          "checksumValue": "3f8c58474627ded85d95f8a4d86329ec4f55b179eb2df393983462d42088e9496eef1a5980481f4b085e6ffb749cd5dd3b312a1e2b7b8189d9723a673ec65b0d"
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "fileName": "./C:/Users/johnw/AppData/Local/vcpkg/registries/git-trees/367e1502c966f1df0656bdea115989650d01a781/portfile.cmake",
+      "SPDXID": "SPDXRef-file-0",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "36daba38de28b8fecd57f96ce43cc97df0c02c3d3aa8451db7aeadfa3e766324"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./C:/Users/johnw/AppData/Local/vcpkg/registries/git-trees/367e1502c966f1df0656bdea115989650d01a781/vcpkg.json",
+      "SPDXID": "SPDXRef-file-1",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "48b852891aadefbf39efb494414e356c9c7b4bf23a3723b7714af923c1f0cbab"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    }
+  ]
+}

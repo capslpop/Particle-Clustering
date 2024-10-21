@@ -1,0 +1,154 @@
+{
+  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.2.1/schemas/spdx-schema.json",
+  "spdxVersion": "SPDX-2.2",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "documentNamespace": "https://spdx.org/spdxdocs/glad-x64-windows-0.1.36-6270aa7f-5a4d-429d-a336-04c965a2a474",
+  "name": "glad:x64-windows@0.1.36 517c60e01ef03a985596fab47f4171c4769db1c6b039f481f1ef8294f45b39ca",
+  "creationInfo": {
+    "creators": [
+      "Tool: vcpkg-ac02a9f660977426b8ec6392919fbb1d51b10998"
+    ],
+    "created": "2024-07-03T12:32:57Z"
+  },
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "GENERATES",
+      "relatedSpdxElement": "SPDXRef-binary"
+    },
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-0"
+    },
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-1"
+    },
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-2"
+    },
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-3"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "GENERATED_FROM",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-0",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-1",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-2",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-3",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
+    }
+  ],
+  "packages": [
+    {
+      "name": "glad",
+      "SPDXID": "SPDXRef-port",
+      "versionInfo": "0.1.36",
+      "downloadLocation": "git+https://github.com/microsoft/vcpkg@fa93b14c1581057e1d14650f5f15c9b0757dd548",
+      "homepage": "https://github.com/Dav1dde/glad",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "description": "Multi-Language Vulkan/GL/GLES/EGL/GLX/WGL Loader-Generator based on the official specs.",
+      "comment": "This is the port (recipe) consumed by vcpkg."
+    },
+    {
+      "name": "glad:x64-windows",
+      "SPDXID": "SPDXRef-binary",
+      "versionInfo": "517c60e01ef03a985596fab47f4171c4769db1c6b039f481f1ef8294f45b39ca",
+      "downloadLocation": "NONE",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "comment": "This is a binary package built by vcpkg."
+    },
+    {
+      "SPDXID": "SPDXRef-resource-1",
+      "name": "Dav1dde/glad",
+      "downloadLocation": "git+https://github.com/Dav1dde/glad@1ecd45775d96f35170458e6b148eb0708967e402",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA512",
+          "checksumValue": "f6292e9dbce503a95b6eca927a90cf8a06f5e3de39b84f9a47e0d9273a6ea3f6591a64d35f2e33b5ea353e0c784f15c38579fc15aa6c5b180154e241ccbb16fe"
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "fileName": "./C:/Users/johnw/AppData/Local/vcpkg/registries/git-trees/fa93b14c1581057e1d14650f5f15c9b0757dd548/encoding.patch",
+      "SPDXID": "SPDXRef-file-0",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "89e022337e38942f5e935211d929265110b3d141075a6b04ad26c110600591e4"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./C:/Users/johnw/AppData/Local/vcpkg/registries/git-trees/fa93b14c1581057e1d14650f5f15c9b0757dd548/find_python.patch",
+      "SPDXID": "SPDXRef-file-1",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "064e43ff9d7aa4e4a0467e7f0fe62c50348f0e8ad1b8b57072363d8e0f0a443e"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./C:/Users/johnw/AppData/Local/vcpkg/registries/git-trees/fa93b14c1581057e1d14650f5f15c9b0757dd548/portfile.cmake",
+      "SPDXID": "SPDXRef-file-2",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "876bcb9362260ef58376320a26ad1f90964f9c1573d00097c5af13d4e77267c5"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./C:/Users/johnw/AppData/Local/vcpkg/registries/git-trees/fa93b14c1581057e1d14650f5f15c9b0757dd548/vcpkg.json",
+      "SPDXID": "SPDXRef-file-3",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "3ed4a4bbda7aaca8656fd547d1b743a54f72756a38e550821894ec5e3836d2c4"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    }
+  ]
+}

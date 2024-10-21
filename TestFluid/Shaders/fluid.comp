@@ -1,0 +1,302 @@
+#version 430 core
+
+// for simplicity ths buffer will calculate all fluid calculations:
+
+// Double Buffers theses switch each frame
+layout(rgba32f) uniform readonly image3D fluidParticlesA;
+layout(rgba32f) uniform writeonly image3D fluidParticlesB;
+
+uniform sampler3D fluidFlowA;
+layout(rgba8) uniform writeonly image3D fluidFlowB;
+
+layout(local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
+
+#define range(i,a,b) for(int i = a; i <= b; i++)
+#define dt 1.0
+
+struct Particle 
+{
+    uint mass; // move this to main cell struct??
+    vec3 pos;
+    vec3 vel;
+};
+
+struct Cell 
+{
+    Particle p0;
+    Particle p1;
+    
+    int count; // number of particles already clustered
+};
+
+vec4 packCell(Cell c, vec3 pos)
+{
+    vec4 info;
+    
+    info.x = uintBitsToFloat(packUnorm4x8(vec4(c.p0.pos - pos, float(c.p0.mass) / 255.0)));
+    info.y = uintBitsToFloat(packUnorm4x8(vec4(c.p1.pos - pos, float(c.p1.mass) / 255.0)));
+
+    info.z = uintBitsToFloat(packSnorm4x8(vec4(c.p0.vel, 0.0)));
+    info.w = uintBitsToFloat(packSnorm4x8(vec4(c.p1.vel, 0.0)));
+
+    return info;
+}
+
+Cell unpackCell(vec3 pos)
+{
+    Cell c;
+    
+    vec4 info = imageLoad(fluidParticlesA, ivec3(pos));
+
+    vec4 x = unpackUnorm4x8(floatBitsToUint(info.x));
+    c.p0.pos = x.xyz + pos;
+    c.p0.mass = uint(x.w * 255.0);
+
+    vec4 y = unpackUnorm4x8(floatBitsToUint(info.y));
+    c.p1.pos = y.xyz + pos;
+    c.p1.mass = uint(y.w * 255.0);
+    
+    vec4 z = unpackSnorm4x8(floatBitsToUint(info.z));
+    c.p0.vel = z.xyz;
+
+    vec4 w = unpackSnorm4x8(floatBitsToUint(info.w));
+    c.p1.vel = w.xyz;
+    
+    return c;
+}
+
+void Clusterize(inout Cell c, Particle p, vec3 pos) 
+{
+    if (!all(equal(floor(p.pos), floor(pos))) || p.mass == 0u) {
+        return;
+    }
+    
+    if (c.count <= 1) {
+        switch (c.count) {
+        case 0:
+            c.p0.pos = p.pos;
+            c.p0.vel = p.vel;
+            c.p0.mass = p.mass;
+            break;
+        case 1:
+            c.p1.pos = p.pos;
+            c.p1.vel = p.vel;
+            c.p1.mass = p.mass;
+            break;
+        }
+        c.count++;
+        return;
+    }
+    
+    float a = distance(c.p0.pos, p.pos);
+    float b = distance(c.p1.pos, p.pos);
+    float minDist = min(a, b);
+    
+    if (minDist == a) 
+    {
+        c.p0.pos = (c.p0.pos * float(c.p0.mass) + p.pos * float(p.mass)) / float(c.p0.mass + p.mass);
+        c.p0.vel = (c.p0.vel * float(c.p0.mass) + p.vel * float(p.mass)) / float(c.p0.mass + p.mass);
+        c.p0.mass += p.mass;
+    } 
+    else if (minDist == b) 
+    {
+        c.p1.pos = (c.p1.pos * float(c.p1.mass) + p.pos * float(p.mass)) / float(c.p1.mass + p.mass);
+        c.p1.vel = (c.p1.vel * float(c.p1.mass) + p.vel * float(p.mass)) / float(c.p1.mass + p.mass);
+        c.p1.mass += p.mass;
+    }
+}
+
+void SplitParticle(inout Particle a, inout Particle b) 
+{    
+    b.vel = a.vel;
+    
+    uint newMass = a.mass / 2u;
+    a.mass -= newMass;
+    b.mass = newMass;
+}
+
+void SplitParticles(inout Cell c)
+{
+    if (c.p0.mass == 0u)
+    {
+        SplitParticle(c.p1, c.p0);
+    }
+    if (c.p1.mass == 0u)
+    {
+        SplitParticle(c.p0, c.p1);
+    }
+    if (all(equal(c.p0.pos, c.p1.pos)))
+    {
+        c.p0.pos -= 0.1;
+        c.p1.pos += 0.1;
+    }
+}
+
+float G(vec3 d) //quadratic kernel in 3D
+{
+    vec3 f = max(1.5 - abs(d), 0.0);
+    vec3 k = min(max(0.75 - d*d, 0.5), 0.5*f*f);
+    return k.x * k.y * k.z;
+}
+
+
+void G2P2G(Particle p, inout Cell c, vec3 pos, inout vec4 cellFlow, vec3 textureSize)
+{
+    // if there is no mass no need to compute particle
+    if (p.mass == 0u) return;
+
+    // G2P
+    vec4 velMass = texture(fluidFlowA, p.pos / textureSize);
+
+    velMass.xyz = (velMass.xyz - 0.5) * 2.0;
+    velMass.w *= 4.0;
+
+    // is this flip?
+    velMass.xyz = mix(velMass.xyz, p.vel, 0.2);
+    
+    p.vel = velMass.xyz;
+    
+    p.pos += dt * velMass.xyz;
+    
+    // P2G    
+    float pressure = 0.5 * (velMass.w - 1.0);
+    
+    // Only update the current cell
+    vec3 dpos = vec3((p.pos - 0.5) - pos);
+    float weight = G(dpos);
+    
+    cellFlow.xyz += weight * (mat3(-pressure) * dpos + float(p.mass) * velMass.xyz);
+    cellFlow.w += weight * float(p.mass);
+    
+    Clusterize(c, p, pos);
+}
+
+
+/*
+void G2P2G(Particle p, inout Cell c, vec3 pos, inout vec4 cellFlow)
+{
+    // if there is no mass no need to compute particle
+    if (p.mass == 0u)
+        return;
+
+    // G2P
+    float density = 0.0;
+    vec3 vel = vec3(0.0); // Initialize velocity
+    mat3x3 C = mat3x3(0.0);
+    
+    // Iterate over surrounding grid nodes
+    range(i, -1, 1) range(j, -1, 1) range(k, -1, 1)
+    {
+        vec3 pos_ = floor(p.pos) + vec3(i, j, k);
+
+        vec4 velMass = texelFetch(fluidFlowA, ivec3(pos_), 0);
+
+        velMass.xyz = (velMass.xyz - 0.5) * 2.0;
+        velMass.w *= 4.0;
+
+        vec3 dpos = (p.pos - 0.5) - pos_;
+        float weight = G(dpos);
+        
+        C += outerProduct(weight * velMass.xyz, dpos);
+        
+        vel += weight * velMass.xyz;
+        density += weight * velMass.w;
+    }
+    
+    p.pos += dt * vel;
+    
+    // P2G    
+    float pressure = max(0.5 * (density - 0.75), -0.1);
+    
+    mat3 stress = mat3(-pressure);
+    
+    mat3 affine = stress + density * C;
+    
+    // Only update the current cell
+    vec3 dpos = vec3((p.pos - 0.5) - pos);
+    float weight = G(dpos);
+    
+    cellFlow.w += weight * float(p.mass);
+    cellFlow.xyz += weight * (affine * dpos + float(p.mass) * vel);
+    
+    Clusterize(c, p, pos);
+}
+*/
+
+void main()
+{
+    ivec3 textureSize = textureSize(fluidFlowA, 0);
+
+    vec3 pos = vec3(gl_GlobalInvocationID);
+    
+    Particle pNot = Particle(0u, vec3(pos), vec3(0.0));
+    Cell c = Cell(pNot, pNot, 0);
+    
+    vec4 cellFlow = vec4(0.0);
+
+    // Compute force and velocity on each particle
+    range(i, -1, 1) range(j, -1, 1) range(k, -1, 1)
+    {
+        vec3 pos_ = pos + vec3(i, j, k);
+        Cell c_ = unpackCell(pos_);
+        
+        G2P2G(c_.p0, c, pos, cellFlow, textureSize);
+        G2P2G(c_.p1, c, pos, cellFlow, textureSize);
+    }
+    
+    // Normalize the velocity of the grid node
+    if (cellFlow.w > 0.0) cellFlow.xyz /= cellFlow.w;
+    
+    // gravity
+    cellFlow.xyz -= vec3(0.0, 0.005, 0.0);
+    
+    // Split particles
+    SplitParticles(c);
+    
+    if (distance(pos, vec3(textureSize)/2.0) < 10.0) // && iMouse.z > 1.0)
+    {
+        c.p0.mass = 1u;
+        //c.p0.pos = pos + vec3(0.5);
+        //c.p1.pos = pos + vec3(0.4);
+        
+        cellFlow.xyz = vec3(0.0, 0.5, 0.0);
+    }
+    
+    float vel = length(cellFlow.xyz);
+    cellFlow.xyz /= (vel > 1.0) ? vel : 1.0;
+    
+    if (pos.x <= 1.0)
+    {
+        cellFlow.x = 1.0;
+    }
+    if (pos.y <= 1.0)
+    {
+        cellFlow.y = 1.0;
+    }
+    if (pos.z <= 1.0)
+    {
+        cellFlow.z = 1.0;
+    }
+    if (pos.x >= float(textureSize.x) - 1.0)
+    {
+        cellFlow.x = -1.0;
+    }
+    if (pos.y >= float(textureSize.y) - 1.0)
+    {
+        cellFlow.y = -1.0;
+    }
+    if (pos.z >= float(textureSize.z) - 1.0)
+    {
+        cellFlow.z = -1.0;
+    }
+    
+    cellFlow.xyz = clamp(cellFlow.xyz, -1.0, 1.0);
+    cellFlow.w = clamp(cellFlow.w, 0.0, 4.0);
+    cellFlow.xyz = (cellFlow.xyz + 1.0)  / 2.0; 
+    cellFlow.w /= 4.0;
+
+    //imageAtomicAdd();
+
+    imageStore(fluidParticlesB, ivec3(gl_GlobalInvocationID), packCell(c, pos));
+    imageStore(fluidFlowB, ivec3(gl_GlobalInvocationID), cellFlow);
+}
